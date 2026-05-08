@@ -154,13 +154,26 @@ impl MerkleNode {
         #[cfg(feature = "retain")]
         // Get the direct descendant paths
         let children_paths = Self::get_children_paths(&children);
+        
+        // Get the entry type
+        #[cfg(feature = "entry-kind")]
+        let kind = if path.absolute.is_file() {
+            crate::components::merkle_item::EntryKind::File
+        } else if path.absolute.is_dir() {
+            crate::components::merkle_item::EntryKind::Directory
+        } else {
+            crate::components::merkle_item::EntryKind::Unknown
+        };
 
         // Returns the newly created node with its data
-
-        #[cfg(feature = "retain")]
-        let item = MerkleItem::new(path, hash, children_paths);
-        #[cfg(not(feature = "retain"))]
-        let item = MerkleItem::new(path, hash);
+        let item = MerkleItem::new(
+            path,
+            hash,
+            #[cfg(feature = "entry-kind")]
+            kind,
+            #[cfg(feature = "retain")]
+            children_paths
+        );
 
         let node = MerkleNode { item, children };
 
