@@ -71,7 +71,7 @@ pub use camino;
 pub use rayon;
 
 #[cfg(feature = "entry-kind")]
-pub use components::merkle_item::EntryKind;
+pub use components::merkle_path::EntryKind;
 
 pub use components::merkle_item::MerkleItem;
 pub use components::merkle_path::MerklePath;
