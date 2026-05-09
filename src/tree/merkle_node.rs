@@ -7,6 +7,8 @@ use rayon::prelude::*;
 
 use crate::components::merkle_item::MerkleItem;
 use crate::components::merkle_path::MerklePath;
+#[cfg(feature = "kind")]
+use crate::components::merkle_path_kind::MerklePathKind;
 use crate::error::IndexingError;
 use crate::utils::algorithm::Algorithm;
 
@@ -45,8 +47,16 @@ impl MerkleNode {
         #[cfg(feature = "camino")]
         let absolute_path = camino::Utf8PathBuf::from(root);
 
+        // Optionally, gets the kind of the path
+        #[cfg(feature = "kind")]
+        let kind = MerklePathKind::from_path(&absolute_path);
+
         // Creates a new merkle path based on them both
+        #[cfg(not(feature = "kind"))]
         let path = MerklePath::new(relative_path, absolute_path);
+
+        #[cfg(feature = "kind")]
+        let path = MerklePath::new(relative_path, absolute_path, kind);
 
         // Indexes the newly created node and returns the result
         Self::index(root, path, hash_names, &algorithm)
@@ -100,7 +110,14 @@ impl MerkleNode {
                         }
                     };
 
+                    #[cfg(feature = "kind")]
+                    let kind = MerklePathKind::from_path(&absolute_path);
+
+                    #[cfg(not(feature = "kind"))]
                     let path = MerklePath::new(relative_path, absolute_path);
+
+                    #[cfg(feature = "kind")]
+                    let path = MerklePath::new(relative_path, absolute_path, kind);
 
                     let node = Self::index(root, path, hash_names, algorithm)?;
 

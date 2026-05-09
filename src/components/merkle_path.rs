@@ -1,5 +1,8 @@
 use std::cmp::Ordering;
 
+#[cfg(feature = "kind")]
+use crate::components::merkle_path_kind::MerklePathKind;
+
 /// A utility struct that contains an absolute path and a relative path
 #[derive(Eq, PartialEq, Clone, Debug, Hash)]
 #[cfg_attr(feature = "bincode", derive(bincode::Decode, bincode::Encode))]
@@ -15,21 +18,31 @@ pub struct MerklePath {
     pub relative: std::path::PathBuf,
     #[cfg(not(feature = "camino"))]
     pub absolute: std::path::PathBuf,
+
+    #[cfg(feature = "kind")]
+    pub kind: MerklePathKind
 }
 
 impl MerklePath {
-    #[cfg(feature = "camino")]
-    pub fn new(relative_path: camino::Utf8PathBuf, absolute_path: camino::Utf8PathBuf) -> Self {
+    pub fn new(
+        #[cfg(feature = "camino")]
+        relative_path: camino::Utf8PathBuf,
+        #[cfg(feature = "camino")]
+        absolute_path: camino::Utf8PathBuf,
+
+        #[cfg(not(feature = "camino"))]
+        relative_path: std::path::PathBuf,
+        #[cfg(not(feature = "camino"))]
+        absolute_path: std::path::PathBuf,
+
+        #[cfg(feature = "kind")]
+        kind: MerklePathKind
+    ) -> Self {
         Self {
             relative: relative_path,
             absolute: absolute_path,
-        }
-    }
-    #[cfg(not(feature = "camino"))]
-    pub fn new(relative_path: std::path::PathBuf, absolute_path: std::path::PathBuf) -> Self {
-        Self {
-            relative: relative_path,
-            absolute: absolute_path,
+            #[cfg(feature = "kind")]
+            kind
         }
     }
 }
